@@ -1,27 +1,8 @@
 ﻿import React, { Component } from 'react';
 import { LinkContainer } from 'react-router-bootstrap';
 import { Layout } from './Layout';
-
-//import axios from 'axios';
-
-
-async function handleResponse(response) {
-    return response.text().then(text => {
-        const data = text && JSON.parse(text);
-        if (!response.ok) {
-            if (response.status === 401) {
-                // auto logout if 401 response returned from api
-                //logout();
-                //location.reload(true);
-            }
-
-            const error = (data && data.message) || response.statusText;
-            return Promise.reject(error);
-        }
-
-        return data;
-    });
-}
+import UserService from '../services/UserService';
+import { LogIn } from './LogIn';
 
 export class SignUp extends Component {
     displayName = SignUp.name
@@ -30,7 +11,9 @@ export class SignUp extends Component {
         super(props);
         this.state = {
             firstName: "",
-            lastName:  ""
+            lastName: "",
+            userName: "",
+            password: ""
         };
     }
 
@@ -46,28 +29,49 @@ export class SignUp extends Component {
         });
     }
 
-    submit = async (a) => {
-
-        var formData = new FormData();
-
-        formData.append('FirstName', a.state.firstName);
-        formData.append('Lastname', a.state.lastName);
-        formData.append('Password', "password");
-
-        await fetch('api/UserController/signUp', {
-            method: 'POST',
-            body: formData
-        }).then(async (response) => {
-            console.log(response);
-            fetch('api/UserController/logIn', {
-                method: 'POST',
-                body: formData
-            }).then(await handleResponse).then( user => {
-                console.log(user);
-                localStorage.setItem('user', JSON.stringify(user));               
-            });
+    handleUserNameChange = (event) => {
+        this.setState({
+            userName: event.target.value
         });
+    }
 
+    handlePasswordChange = (event) => {
+        this.setState({
+            password: event.target.value
+        });
+    }
+
+    submit = async (e) => {
+
+        if (this.state.firstName === "" || this.state.lastName === "" || this.state.userName === "" || this.state.password === "") {
+            alert("You need to fill in every field");
+            return;
+        }
+
+        if (await UserService.isUserNameTaken(this.state.userName)) {
+            alert("username is already taken!");
+            return;
+        }
+
+        let data = {
+            firstName: this.state.firstName,
+            lastName: this.state.lastName,
+            userName: this.state.userName,
+            password: this.state.password
+        }
+
+        var success = await UserService.SignUp(data);
+        if (!success) {
+            alert("Registration failed");
+            return;
+        }
+        success = await UserService.LogIn(data);
+        if (!success) {
+            alert("Log in failed");
+            return;
+        }
+
+        this.props.history.push('/');
     }
 
     render() {
@@ -84,9 +88,17 @@ export class SignUp extends Component {
                     Last name
                     <input type="text" onChange={e => this.handleLastNameChange(e)}></input>               
                 </div>
-                <LinkContainer to={'/'}>
-                    <button onClick={e => this.submit(this)}>submit</button>
-                </LinkContainer>
+                <div>
+                    User name
+                    <input type="text" onChange={e => this.handleUserNameChange(e)}></input>
+                </div>
+                <div>
+                    Password
+                    <input type="password" onChange={e => this.handlePasswordChange(e)}></input>
+                </div>
+                <div>
+                    <button onClick={this.submit}>submit</button>
+                </div>
             </Layout>
         );
     }

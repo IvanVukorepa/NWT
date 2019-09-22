@@ -21,16 +21,18 @@ namespace WebApplication1.Controllers
 
         [HttpPost]
         [Route("api/UserController/signUp")]
-        public IActionResult SignUp(User user)
+        public IActionResult SignUp([FromBody]User user)
         {
+            user.Password = PasswordHelper.ComputeSha256Hash(user.Password);
             return Ok(_userRepository.AddUser(user));
         }
 
         [HttpPost]
         [Route("api/UserController/logIn")]
-        public IActionResult LogIn(User user)
+        public IActionResult LogIn([FromBody]User user)
         {
-            return Ok(_userRepository.Authenticate(user.LastName, user.Password));
+            user.Password = PasswordHelper.ComputeSha256Hash(user.Password);
+            return Ok(_userRepository.Authenticate(user.UserName, user.Password));
         }
 
         [HttpGet]
@@ -39,5 +41,13 @@ namespace WebApplication1.Controllers
         {
             return Ok(_userRepository.GetUserById(id));
         }
+
+        [HttpPost]
+        [Route("api/UserController/checkUserName")]
+        public IActionResult CheckUsername([FromBody]string userName)
+        {
+            return Ok(_userRepository.CheckUsername(userName));
+        }
+        
     }
 }

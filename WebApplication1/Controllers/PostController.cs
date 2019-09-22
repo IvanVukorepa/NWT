@@ -23,6 +23,13 @@ namespace WebApplication1.Controllers
             _postRepository = new PostRepository();
         }
 
+        [HttpGet]
+        [Route("api/PostController/getPost")]
+        public IActionResult GetPost(int id)
+        {
+            return Ok(_postRepository.GetPostById(id));
+        }
+
         [HttpPost]
         [Route("api/PostController/Create")]
         public IActionResult Create([FromBody]JObject data)
@@ -33,9 +40,6 @@ namespace WebApplication1.Controllers
             Post post = new Post();
             post.Content = content;
             post.PosterId = user.UserId;
-            /*Post post = new Post();
-            post.Content = data.content;
-            post.Poster.UserId = data.userId;*/
             return Ok(_postRepository.CreatePost(post));
         }
 
@@ -44,6 +48,15 @@ namespace WebApplication1.Controllers
         public IEnumerable<Post> GetAllPosts()
         {
             return _postRepository.GetAll();
+        }
+        
+        [HttpPost]
+        [Route("api/PostController/edit")]
+        public IActionResult Edit([FromBody]JObject data)
+        {
+            Post post = data["post"].ToObject<Post>();
+
+            return Ok(_postRepository.EditPost(post));
         }
     }
 }

@@ -1,64 +1,11 @@
 ﻿import React, { Component } from 'react';
 import { LinkContainer } from 'react-router-bootstrap';
 import { Layout } from './Layout';
-//import axios from 'axios';
+import PostService from '../services/PostService';
+import VoteService from '../services/VoteService';
+import UserService from '../services/UserService';
+import CommentService from '../services/CommentService';
 
-async function getUser(id) {
-    const requestOptions = {
-        method: 'GET',
-        /*headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-        },*/
-        //body: JSON.stringify({ "UserId": id })
-    };
-
-    var user;
-    await fetch('api/UserController/getUser?id='+id, requestOptions)
-        .then(response => response.json())
-        .then(data => {
-            user = data;
-        });
-
-    return user;
-}
-async function getComments(postId) {
-    const requestOptions = {
-        method: 'GET',
-        /*headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-        },*/
-        //body: JSON.stringify({ "UserId": id })
-    };
-
-    var comments;
-    await fetch('api/CommentController/getComments?postId=' + postId, requestOptions)
-        .then(response => response.json())
-        .then(data => {
-            comments = data;
-        });
-
-    return comments;
-}
-
-async function handleResponse(response) {
-    return response.text().then(text => {
-        const data = text && JSON.parse(text);
-        if (!response.ok) {
-            if (response.status === 401) {
-                // auto logout if 401 response returned from api
-                //logout();
-                //location.reload(true);
-            }
-
-            const error = (data && data.message) || response.statusText;
-            return Promise.reject(error);
-        }
-
-        return data;
-    });
-}
 
 export class PostDetails extends Component {
     displayName = PostDetails.name
@@ -75,40 +22,100 @@ export class PostDetails extends Component {
 
     async componentDidMount() {
         console.log(this.props.location.state)
-        var user = await getUser(this.props.location.state.post.posterId);
-        var comments = await getComments(this.props.location.state.post.postId);
-        console.log(comments);
+        var post = await PostService.getPost(this.props.location.state.postId);
+        console.log(post);
+        var user = await UserService.getUser(post.posterId);
+        var comments = await CommentService.getComments(post.postId);
+
+        var currentUser = JSON.parse(localStorage.getItem('user'));
+
+        let upvotes = 0;
+        let downvotes = 0;
+        let currentUserVoted = -1;
+        post.votes.map(v => {
+            if (currentUser && v.userId === currentUser.userId) {
+                currentUserVoted = v.voteType;
+            }
+            if (v.voteType === 0)
+                upvotes++;
+            else if (v.voteType === 1)
+                downvotes++;
+        });
+
         this.setState({
-            post: this.props.location.state.post,
+            post: post,
             user: user,
-            comments: comments
+            comments: comments,
+            upvotes: upvotes,
+            downvotes: downvotes,
+            currentUserVoted: currentUserVoted
         });
     }
 
-    handleNewCommentChange = (e, th) => {
+    handleNewCommentChange = (e) => {
         var comment = e.target.value;
-        console.log(comment);
         this.setState({
             comment: comment
         });
     }
 
-    addComment = async (th) => {
-        var user = JSON.parse(localStorage.getItem('user'));
+    addComment = async () => {
+        await PostService.addComment(this.state.comment, this.state.post.postId);
 
-        await fetch('api/CommentController/Create', {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ "comment": th.state.comment, "postId": th.state.post.postId, "userId": user.userId })
-        }).then(await handleResponse);
+        var comments = await CommentService.getComments(this.state.post.postId);
 
-        var comments = await getComments(this.state.post.postId);
         this.setState({
             comments: comments
         });
+    }
+
+    upvoteClick = async () => {
+        let upvotes = this.state.upvotes;
+        let downvotes = this.state.downvotes;
+        if (this.state.currentUserVoted === 0) {
+            return;
+        }
+        else if (this.state.currentUserVoted === -1) {
+            await VoteService.addVote(this.state.post.postId, 0);
+            ++upvotes;
+        }
+        else if (this.state.currentUserVoted === 1) {
+            await VoteService.editVote(this.state.post.postId, 0);
+            --downvotes;
+            ++upvotes;
+        }
+        
+        this.setState({
+            upvotes: upvotes,
+            downvotes: downvotes,
+            currentUserVoted: 0
+        });
+    }
+
+    downvoteClick = async () => {
+        let upvotes = this.state.upvotes;
+        let downvotes = this.state.downvotes;
+        if (this.state.currentUserVoted === 1) {
+            return;
+        }
+        else if (this.state.currentUserVoted === -1) {
+            await VoteService.addVote(this.state.post.postId, 1);
+            ++downvotes;
+        }
+        else if (this.state.currentUserVoted === 0) {
+            await VoteService.editVote(this.state.post.postId, 1);
+            ++downvotes;
+            --upvotes;
+        }
+
+        this.setState({
+            upvotes: upvotes,
+            downvotes: downvotes,
+            currentUserVoted: 1
+        });
+    }
+
+    editClick = () => {
     }
 
     render() {
@@ -123,10 +130,22 @@ export class PostDetails extends Component {
                 <div>
                     Content
                     <p>{this.state.post.content}</p>
+                    <button onClick={this.editClick}>Edit</button>
                 </div>
                 <div>
-                    <input type="text" placeholder="Komentiraj" onChange={e => this.handleNewCommentChange(e, this)}></input>
-                    <button onClick={e => this.addComment(this)}>Submit</button>
+                    Votes
+                    <p>upvotes </p>
+                    <p>{this.state.upvotes}</p>
+                    <p>downvotes </p>
+                    <p>{this.state.downvotes}</p>
+                </div>
+                <div>
+                    <button onClick={this.upvoteClick}>upvote</button>
+                    <button onClick={this.downvoteClick}>downvote</button>
+                </div>
+                <div>
+                    <input type="text" placeholder="Komentiraj" onChange={e => this.handleNewCommentChange(e)}></input>
+                    <button onClick={this.addComment}>Submit</button>
                     <p>Komentari:</p>
                     {this.state.comments.map(comment => {
                         return (

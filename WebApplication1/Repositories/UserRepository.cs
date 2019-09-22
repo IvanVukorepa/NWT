@@ -33,12 +33,12 @@ namespace WebApplication1.Repositories
             User user;
             using (var context = new SocialNetworkContext(new DbContextOptions<SocialNetworkContext>()))
             {
-                user = context.Users.FirstOrDefault(u => u.LastName == userName && u.Password == password);
+                user = context.Users.FirstOrDefault(u => u.UserName == userName && u.Password == password);
             }
             if (user == null)
                 return null;
 
-            // authentication successful so generate jwt token
+            // authentication successful, generate jwt token
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes("symetricKeyForNWTProject");
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -69,6 +69,20 @@ namespace WebApplication1.Repositories
             } catch { return null; }
 
             return user;
+        }
+
+        public bool CheckUsername(string userName)
+        {
+            try
+            {
+                using (var context = new SocialNetworkContext(new DbContextOptions<SocialNetworkContext>()))
+                {
+                    if (context.Users.FirstOrDefault(u => u.UserName == userName) == null)
+                        return false;
+                    return true;
+                }
+            }
+            catch { return true; }
         }
     }
 }

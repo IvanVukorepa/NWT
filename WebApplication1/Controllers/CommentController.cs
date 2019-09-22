@@ -19,7 +19,7 @@ namespace WebApplication1.Controllers
 
         [HttpPost]
         [Route("api/CommentController/Create")]
-        public IActionResult CreatePost([FromBody]JObject data)
+        public IActionResult CreateComment([FromBody]JObject data)
         {
             string content = data["comment"].ToObject<string>();
             int postId = data["postId"].ToObject<int>();

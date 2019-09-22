@@ -10,7 +10,7 @@ using WebApplication1.DAL;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(SocialNetworkContext))]
-    [Migration("20190909190725_InitialCreate")]
+    [Migration("20190922164030_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -75,9 +75,32 @@ namespace WebApplication1.Migrations
 
                     b.Property<string>("Token");
 
+                    b.Property<string>("UserName");
+
                     b.HasKey("UserId");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.Vote", b =>
+                {
+                    b.Property<int>("VoteId")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("PostId");
+
+                    b.Property<int>("UserId");
+
+                    b.Property<int>("VoteType");
+
+                    b.HasKey("VoteId");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Votes");
                 });
 
             modelBuilder.Entity("WebApplication1.Models.Comment", b =>
@@ -98,6 +121,19 @@ namespace WebApplication1.Migrations
                     b.HasOne("WebApplication1.Models.User", "Poster")
                         .WithMany("Posts")
                         .HasForeignKey("PosterId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("WebApplication1.Models.Vote", b =>
+                {
+                    b.HasOne("WebApplication1.Models.Post", "Post")
+                        .WithMany("Votes")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("WebApplication1.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618

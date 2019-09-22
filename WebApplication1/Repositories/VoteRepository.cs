@@ -8,35 +8,34 @@ using WebApplication1.Models;
 
 namespace WebApplication1.Repositories
 {
-    public class CommentRepository
+    public class VoteRepository
     {
-        public Comment AddComment(Comment comment)
+        public bool AddVote(Vote vote)
         {
             try
             {
                 using (var context = new SocialNetworkContext(new DbContextOptions<SocialNetworkContext>()))
                 {
-                    context.Comments.Add(comment);
+                    context.Votes.Add(vote);
+                    context.SaveChanges();
+                }
+            } catch { return false; }
+            return true;
+        }
+
+        public bool EditVote(int userId, int postId, VoteType voteType)
+        {
+            try
+            {
+                using (var context = new SocialNetworkContext(new DbContextOptions<SocialNetworkContext>()))
+                {
+                    var vote = context.Votes.FirstOrDefault(v => v.PostId == postId && v.UserId == userId);
+                    vote.VoteType = voteType;
                     context.SaveChanges();
                 }
             }
-            catch { return null; }
-            return comment;
-        }
-
-        public IEnumerable<Comment> getCommentsForPost(int postId)
-        {
-            List<Comment> comments;
-            try
-            {
-                using (var context = new SocialNetworkContext(new DbContextOptions<SocialNetworkContext>()))
-                {
-                    comments = context.Comments.Include(c => c.User).Where(c => c.PostId == postId).ToList<Comment>();
-                }
-            }
-            catch { return null; }
-
-            return comments;
+            catch { return false; }
+            return true;
         }
     }
 }
