@@ -118,6 +118,14 @@ export class PostDetails extends Component {
     editClick = () => {
     }
 
+    deleteClick = async () => {
+        let success = await PostService.deletePost(this.state.post.postId, this.state.post.posterId);
+
+        if (success) {
+            this.props.history.push('/');
+        }
+    }
+
     render() {
         return (
             <Layout>
@@ -131,6 +139,7 @@ export class PostDetails extends Component {
                     Content
                     <p>{this.state.post.content}</p>
                     <button onClick={this.editClick}>Edit</button>
+                    <button onClick={this.deleteClick}>Delete</button>
                 </div>
                 <div>
                     Votes

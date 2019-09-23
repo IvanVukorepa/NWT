@@ -49,6 +49,28 @@ const PostService = {
         return post;
     },
 
+    deletePost: async function (postId, posterId) {
+        var user = JSON.parse(localStorage.getItem("user"));
+        if (user === null) {
+            alert("you need to be logged in");
+            return false;
+        }
+        if (user.userId !== posterId) {
+            alert("You can only delete your posts");
+            return false;
+        }
+
+        const requestOptions = {
+            method: 'DELETE'
+        };
+
+        var success = await fetch('api/PostController/delete?postId=' + postId, requestOptions)
+            .then(response => response.json())
+
+        return success;
+
+    },
+
     getPosts: async function () {
         const requestOptions = {
             method: 'GET',

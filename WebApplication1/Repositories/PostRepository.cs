@@ -43,6 +43,22 @@ namespace WebApplication1.Repositories
             return true;
         }
 
+        public bool DeletePost(int postId)
+        {
+            try
+            {
+                using (var context = new SocialNetworkContext(new DbContextOptions<SocialNetworkContext>()))
+                {
+                    var post = context.Posts.FirstOrDefault(p => p.PostId == postId);
+                    context.Posts.Remove(post);
+                    context.SaveChanges();
+                }
+            }
+            catch { return false; }
+
+            return true;
+        }
+
         public List<Post> GetAll()
         {
             try

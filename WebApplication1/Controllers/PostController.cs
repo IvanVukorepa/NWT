@@ -58,5 +58,12 @@ namespace WebApplication1.Controllers
 
             return Ok(_postRepository.EditPost(post));
         }
+
+        [HttpDelete]
+        [Route("api/PostController/delete")]
+        public IActionResult Delete(int postId)
+        {
+            return Ok(_postRepository.DeletePost(postId));
+        }
     }
 }
