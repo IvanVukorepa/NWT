@@ -49,6 +49,32 @@ const PostService = {
         return post;
     },
 
+    editPost: async function (postId, posterId, content) {
+        var user = JSON.parse(localStorage.getItem("user"));
+        if (user === null) {
+            alert("you need to be logged in");
+            return false;
+        }
+        if (user.userId !== posterId) {
+            alert("You can only delete your posts");
+            return false;
+        }
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ "content": content, "postId": postId })
+        };
+
+        var success = await fetch('api/PostController/edit', requestOptions)
+            .then(await handleResponse)
+
+        return success;
+    },
+
     deletePost: async function (postId, posterId) {
         var user = JSON.parse(localStorage.getItem("user"));
         if (user === null) {
@@ -71,13 +97,24 @@ const PostService = {
 
     },
 
+    getFilteredPosts: async function (filter) {
+        const requestOptions = {
+            method: 'GET',
+        };
+
+        var posts = await fetch('api/PostController/getPosts?filter=' + filter, requestOptions)
+                            .then(response => response.json())
+
+        return posts;
+    },
+
     getPosts: async function () {
         const requestOptions = {
             method: 'GET',
         };
 
         var posts = await fetch('api/PostController/getAllPosts', requestOptions)
-                            .then(response => response.json())
+            .then(response => response.json())
 
         return posts;
     },

@@ -25,15 +25,15 @@ namespace WebApplication1.Repositories
             return post;
         }
 
-        public bool EditPost(Post post)
+        public bool EditPost(int postId, string content)
         {
             try
             {
                 using (var context = new SocialNetworkContext(new DbContextOptions<SocialNetworkContext>()))
                 {
-                    var postDb = context.Posts.FirstOrDefault(p => p.PostId == post.PostId);
+                    var post = context.Posts.FirstOrDefault(p => p.PostId == postId);
 
-                    postDb.Content = post.Content;
+                    post.Content = content;
 
                     context.SaveChanges();
                 }
@@ -65,7 +65,20 @@ namespace WebApplication1.Repositories
             {
                 using (var context = new SocialNetworkContext(new DbContextOptions<SocialNetworkContext>()))
                 {
-                    var posts = context.Posts.ToList<Post>();
+                    var posts = context.Posts.ToList();
+                    return posts;
+                }
+            }
+            catch { return null; }
+        }
+
+        public List<Post> GetFiltered(string filter)
+        {
+            try
+            {
+                using (var context = new SocialNetworkContext(new DbContextOptions<SocialNetworkContext>()))
+                {
+                    var posts = context.Posts.Where(p => p.Content.Contains(filter)).ToList();
                     return posts;
                 }
             }

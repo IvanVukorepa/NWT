@@ -1,5 +1,5 @@
 ﻿import React, { Component } from 'react';
-import { LinkContainer } from 'react-router-bootstrap';
+import { Modal, Button } from 'react-bootstrap';
 import { Layout } from './Layout';
 import PostService from '../services/PostService';
 import VoteService from '../services/VoteService';
@@ -16,14 +16,13 @@ export class PostDetails extends Component {
             post: [],
             user: {},
             comments: [],
-            comment: ""
+            comment: "",
+            edit: false
         };
     }
 
     async componentDidMount() {
-        console.log(this.props.location.state)
         var post = await PostService.getPost(this.props.location.state.postId);
-        console.log(post);
         var user = await UserService.getUser(post.posterId);
         var comments = await CommentService.getComments(post.postId);
 
@@ -48,7 +47,8 @@ export class PostDetails extends Component {
             comments: comments,
             upvotes: upvotes,
             downvotes: downvotes,
-            currentUserVoted: currentUserVoted
+            currentUserVoted: currentUserVoted,
+            editedValue: post.content
         });
     }
 
@@ -65,11 +65,19 @@ export class PostDetails extends Component {
         var comments = await CommentService.getComments(this.state.post.postId);
 
         this.setState({
-            comments: comments
+            comments: comments,
+            comment: ""
         });
+
+        var comment = document.getElementById("comment");
+        comment.value = '';
     }
 
     upvoteClick = async () => {
+        if (JSON.parse(localStorage.getItem('user')) === null) {
+            alert("You need to be logged in to perform this action");
+            return;
+        }
         let upvotes = this.state.upvotes;
         let downvotes = this.state.downvotes;
         if (this.state.currentUserVoted === 0) {
@@ -93,6 +101,10 @@ export class PostDetails extends Component {
     }
 
     downvoteClick = async () => {
+        if (JSON.parse(localStorage.getItem('user')) === null) {
+            alert("You need to be logged in to perform this action");
+            return;
+        }
         let upvotes = this.state.upvotes;
         let downvotes = this.state.downvotes;
         if (this.state.currentUserVoted === 1) {
@@ -116,6 +128,35 @@ export class PostDetails extends Component {
     }
 
     editClick = () => {
+        var user = JSON.parse(localStorage.getItem("user"));
+        if (user === null) {
+            alert("you need to be logged in");
+            return false;
+        }
+        else if (user.userId !== this.state.post.posterId) {
+            alert("You can only delete your posts");
+            return false;
+        }
+        this.setState({
+            edit: true
+        });
+    }
+
+    submitEdit = async () => {
+        var success = await PostService.editPost(this.state.post.postId, this.state.post.posterId, this.state.editedValue);
+        if (success) {
+            var post = this.state.post;
+            post.content = this.state.editedValue;
+            this.setState({
+                post: post,
+                edit: false
+            });
+        }
+    }
+    cancelEdit = () => {
+        this.setState({
+            edit: false
+        });
     }
 
     deleteClick = async () => {
@@ -124,6 +165,12 @@ export class PostDetails extends Component {
         if (success) {
             this.props.history.push('/');
         }
+    }
+
+    changeEditValue = (e) => {
+        this.setState({
+            editedValue: e.target.value
+        });
     }
 
     render() {
@@ -153,7 +200,7 @@ export class PostDetails extends Component {
                     <button onClick={this.downvoteClick}>downvote</button>
                 </div>
                 <div>
-                    <input type="text" placeholder="Komentiraj" onChange={e => this.handleNewCommentChange(e)}></input>
+                    <input type="text" id="comment" placeholder="Komentiraj" onChange={e => this.handleNewCommentChange(e)}></input>
                     <button onClick={this.addComment}>Submit</button>
                     <p>Komentari:</p>
                     {this.state.comments.map(comment => {
@@ -165,6 +212,22 @@ export class PostDetails extends Component {
                         )
                     })}
                 </div>
+                <Modal show={this.state.edit} onHide={this.submitEdit}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Modal heading</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <input type="text" defaultValue={this.state.post.content} onChange={this.changeEditValue}></input>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={this.cancelEdit}>
+                            Close
+                        </Button>
+                        <Button variant="primary" onClick={this.submitEdit}>
+                            Save Changes
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
             </Layout>
         );
     }

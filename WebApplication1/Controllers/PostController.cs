@@ -49,14 +49,22 @@ namespace WebApplication1.Controllers
         {
             return _postRepository.GetAll();
         }
-        
+
+        [Route("api/PostController/getPosts")]
+        [HttpGet]
+        public IEnumerable<Post> GetAllPosts(string filter)
+        {
+            return _postRepository.GetFiltered(filter);
+        }
+
         [HttpPost]
         [Route("api/PostController/edit")]
         public IActionResult Edit([FromBody]JObject data)
         {
-            Post post = data["post"].ToObject<Post>();
+            string content = data["content"].ToObject<string>();
+            int postId = data["postId"].ToObject<int>();
 
-            return Ok(_postRepository.EditPost(post));
+            return Ok(_postRepository.EditPost(postId, content));
         }
 
         [HttpDelete]

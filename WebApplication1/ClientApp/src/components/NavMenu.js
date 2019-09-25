@@ -21,12 +21,18 @@ export class NavMenu extends Component {
         }
     }
 
+    signUpClick = () => {
+        if (this.state.user !== null) {
+            localStorage.removeItem('user');
+        }
+    }
+
   render() {
     return (
       <Navbar inverse fixedTop fluid collapseOnSelect>
         <Navbar.Header>
           <Navbar.Brand>
-           <Link to={'/'}>{this.state.user !== null ? this.state.user.firstName : "blabla"}</Link>
+           <Link to={'/'}>{this.state.user !== null ? this.state.user.firstName : ""}</Link>
           </Navbar.Brand>
           <Navbar.Toggle />
         </Navbar.Header>
@@ -48,8 +54,8 @@ export class NavMenu extends Component {
               </NavItem>
             </LinkContainer>
             <LinkContainer to={'/logIn'}>
-                <NavItem>
-                    <Glyphicon glyph='glyphicon-user' /> Sign Up
+                <NavItem onClick={this.signUpClick}>
+                    <Glyphicon glyph='glyphicon-user' /> {this.state.user !== null ? "Log out" : "Sign Up"}
                 </NavItem>
             </LinkContainer>
           </Nav>
