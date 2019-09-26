@@ -10,7 +10,7 @@ using WebApplication1.DAL;
 namespace WebApplication1.Migrations
 {
     [DbContext(typeof(SocialNetworkContext))]
-    [Migration("20190922164030_InitialCreate")]
+    [Migration("20190925221352_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -28,6 +28,8 @@ namespace WebApplication1.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Content");
+
+                    b.Property<DateTime>("CreationTime");
 
                     b.Property<int>("PostId");
 
@@ -49,6 +51,8 @@ namespace WebApplication1.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Content");
+
+                    b.Property<DateTime>("CreationTime");
 
                     b.Property<int>("PosterId");
 

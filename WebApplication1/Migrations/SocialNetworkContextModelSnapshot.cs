@@ -27,6 +27,8 @@ namespace WebApplication1.Migrations
 
                     b.Property<string>("Content");
 
+                    b.Property<DateTime>("CreationTime");
+
                     b.Property<int>("PostId");
 
                     b.Property<int>("UserId");
@@ -47,6 +49,8 @@ namespace WebApplication1.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Content");
+
+                    b.Property<DateTime>("CreationTime");
 
                     b.Property<int>("PosterId");
 

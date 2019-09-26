@@ -3,6 +3,7 @@ import { LinkContainer } from 'react-router-bootstrap';
 import { Layout } from './Layout';
 import { Link } from 'react-router-dom';
 import PostService from '../services/PostService';
+import '../style/home.css';
 
 
 function RemoveFilter(props) {
@@ -40,6 +41,7 @@ export class Home extends Component {
                 postList: posts
             });
         }
+        console.log(posts);
     }
 
     handleTextChange = (e) => {
@@ -48,19 +50,22 @@ export class Home extends Component {
         });
     }
 
-    createPost = async (e, th) => {
-        if (th.state.post == "") {
+    createPost = async (e) => {
+        if (this.state.post == "") {
             alert("Empty post");
             return;
         }
-        else if (th.state.post.length > 500) {
+        else if (this.state.post.length > 500) {
             alert("Max post size is 500 characters");
             return;
         }
 
 
-        var newPost = await PostService.createPost(th.state.post);
-
+        var newPost = await PostService.createPost(this.state.post);
+        if (newPost === null) {
+            return;
+        }
+        newPost.poster = this.state.user;
         var posts = this.state.postList;
         posts.push(newPost);
 
@@ -104,25 +109,29 @@ export class Home extends Component {
   render() {
     return (
         <Layout userName={this.state.user !== null ? this.state.user.firstName : ""}>
-            <div>
-                <input placeholder="Search" id="search" onChange={this.filterChange}></input>
-                <button onClick={this.filter}>Search</button>
-                <RemoveFilter show={this.state.filtered} _this={this}/>
+            <div className="homeContainer">
+                <div className="postsContainer">
+                    <div className="newPostContainer">
+                        <textarea id="input" className="newPost" rows="4" onChange={e => this.handleTextChange(e)}></textarea>
+                        <button className="createButton" onClick={e => this.createPost(e)}>Create</button>
+                    </div>
+                    {this.state.postList.map(post => {
+                        return (
+                            <Link key={post.postId} to={{ pathname: "/postDetails", state: { postId: post.postId } }}>
+                                <div className="postContainer">
+                                    <p>{post.poster.userName}</p>
+                                    <p>{post.content.length > 30 ? post.content.substring(0,30) + "..." : post.content}</p>
+                                </div>
+                            </Link>
+                        )
+                        })}
+                </div>
+                <div className="searchContainer">
+                    <input className="searchInput" placeholder="Search" id="search" onChange={this.filterChange}></input>
+                    <button onClick={this.filter}>Search</button>
+                    <RemoveFilter show={this.state.filtered} _this={this} />
+                </div>
             </div>
-            <div>
-                <input id="input" className="newPost" onChange={e => this.handleTextChange(e)}></input>
-                <button onClick={e => this.createPost(e, this)}>Create</button>
-            </div>
-            {this.state.postList.map(post => {
-                return (
-                    <Link key={post.postId} to={{ pathname: "/postDetails", state: { postId: post.postId } }}>
-                        <div>
-                            <p>OVO JE POST</p>
-                            <p>{post.content}</p>
-                        </div>
-                    </Link>
-                )
-            })}
         </Layout>
     );
   }

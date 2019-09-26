@@ -19,6 +19,8 @@ namespace WebApplication1.Models
         }
 
         public int CommentId { get; set; }
+        public DateTime CreationTime { get; set; }
+
         public User User { get; set; }
         public int UserId { get; set; }
         public Post Post { get; set; }

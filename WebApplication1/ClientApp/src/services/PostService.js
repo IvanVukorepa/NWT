@@ -24,7 +24,7 @@ const PostService = {
         var user = localStorage.getItem("user");
         if (user === null) {
             alert("you need to be logged in");
-            return;
+            return null;
         }
         var post = await fetch('api/PostController/Create', {
             method: 'POST',

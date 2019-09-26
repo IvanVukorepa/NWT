@@ -16,6 +16,7 @@ namespace WebApplication1.Repositories
             {
                 using (var context = new SocialNetworkContext(new DbContextOptions<SocialNetworkContext>()))
                 {
+                    post.CreationTime = DateTime.Now;
                     context.Posts.Add(post);
                     context.SaveChanges();
                 }
@@ -65,7 +66,7 @@ namespace WebApplication1.Repositories
             {
                 using (var context = new SocialNetworkContext(new DbContextOptions<SocialNetworkContext>()))
                 {
-                    var posts = context.Posts.ToList();
+                    var posts = context.Posts.Include(p => p.Poster).ToList();
                     return posts;
                 }
             }

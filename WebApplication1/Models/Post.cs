@@ -13,6 +13,7 @@ namespace WebApplication1.Models
             Votes = new HashSet<Vote>();
         }
         public int PostId { get; set; }
+        public DateTime CreationTime { get; set; }
         public User Poster { get; set; }
         public int PosterId { get; set; }
         public ICollection<Comment> Comments { get; set; }

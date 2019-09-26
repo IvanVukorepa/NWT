@@ -32,6 +32,7 @@ namespace WebApplication1.Migrations
                 {
                     PostId = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    CreationTime = table.Column<DateTime>(nullable: false),
                     PosterId = table.Column<int>(nullable: false),
                     Content = table.Column<string>(nullable: true)
                 },
@@ -52,6 +53,7 @@ namespace WebApplication1.Migrations
                 {
                     CommentId = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    CreationTime = table.Column<DateTime>(nullable: false),
                     UserId = table.Column<int>(nullable: false),
                     PostId = table.Column<int>(nullable: false),
                     Content = table.Column<string>(nullable: true)

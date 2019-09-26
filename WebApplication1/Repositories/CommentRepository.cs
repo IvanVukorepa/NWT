@@ -16,6 +16,7 @@ namespace WebApplication1.Repositories
             {
                 using (var context = new SocialNetworkContext(new DbContextOptions<SocialNetworkContext>()))
                 {
+                    comment.CreationTime = DateTime.Now;
                     context.Comments.Add(comment);
                     context.SaveChanges();
                 }

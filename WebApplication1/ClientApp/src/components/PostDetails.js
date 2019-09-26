@@ -213,11 +213,11 @@ export class PostDetails extends Component {
                     })}
                 </div>
                 <Modal show={this.state.edit} onHide={this.submitEdit}>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Modal heading</Modal.Title>
+                    <Modal.Header>
+                        <Modal.Title>Edit post</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <input type="text" defaultValue={this.state.post.content} onChange={this.changeEditValue}></input>
+                        <textarea type="text" rows="4" cols="70" defaultValue={this.state.post.content} onChange={this.changeEditValue}></textarea>
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="secondary" onClick={this.cancelEdit}>

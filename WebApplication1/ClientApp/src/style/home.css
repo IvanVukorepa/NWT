@@ -1,0 +1,39 @@
+﻿body {
+    background-color:rgb(240,240,240);
+    margin-top: 10px;
+}
+
+.searchContainer {
+    margin: 10px 30px 0 auto;
+    display:flex;
+    height: 2em;
+}
+
+.homeContainer {
+    display: flex;
+    margin-left: 50px;
+}
+
+.searchInput {
+}
+
+.newPostContainer {
+    display:flex;
+    margin-bottom: 10px;
+    width: 350px;
+}
+
+#input {
+    height: 5em;
+    width: 350px;
+}
+
+.createButton {
+}
+
+.postContainer {
+    background-color: rgb(220,220,220);
+    padding: 10px;
+    margin: 5px 0;
+    max-width:350px;
+}
