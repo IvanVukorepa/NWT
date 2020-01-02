@@ -79,7 +79,7 @@ namespace WebApplication1.Repositories
             {
                 using (var context = new SocialNetworkContext(new DbContextOptions<SocialNetworkContext>()))
                 {
-                    var posts = context.Posts.Where(p => p.Content.Contains(filter)).ToList();
+                    var posts = context.Posts.Include(p => p.Poster).Where(p => p.Content.Contains(filter)).ToList();
                     return posts;
                 }
             }
